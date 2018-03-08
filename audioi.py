@@ -8,7 +8,8 @@ CHUNK = int(RATE / 10)
 
 class MicrophoneStream(object):
     """Opens a recording stream as a generator yielding the audio chunks."""
-    def __init__(self, rate, chunk):
+    def __init__(self, rate, chunk, channel):
+        self._channel = channel
         self._rate = rate
         self._chunk = chunk
 
@@ -22,7 +23,7 @@ class MicrophoneStream(object):
             format=pyaudio.paInt16,
             # The API currently only supports 1-channel (mono) audio
             # https://goo.gl/z757pE
-            channels=1, rate=self._rate,
+            channels=self._channel, rate=self._rate,
             input=True, frames_per_buffer=self._chunk,
             # Run the audio stream asynchronously to fill the buffer object.
             # This is necessary so that the input device's buffer doesn't
@@ -69,10 +70,3 @@ class MicrophoneStream(object):
                     break
 
             yield b''.join(data)
-
-
-aud = MicrophoneStream(RATE, CHUNK)
-aud.__enter__()
-
-
-    
