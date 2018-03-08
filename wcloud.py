@@ -8,7 +8,5 @@ def tone_sentiment(text):
         password='raSTeIk6uaKB',
         version='2017-09-21',
         url = 'https://gateway.watsonplatform.net/tone-analyzer/api')
-    with open(join(dirname(__file__),'tone-chat.json')) as tone_json:
-        # tone = tone_analyzer.tone_chat(json.load(tone_json)['utterances'])
-        tone = tone_analyzer.tone({"text":text},sentences=False)
+    tone = tone_analyzer.tone({"text":text},sentences=False)
     return tone
