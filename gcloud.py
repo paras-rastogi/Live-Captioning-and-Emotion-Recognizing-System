@@ -43,6 +43,7 @@ class Translate:
 
     def __init__(self, from_language='en', to_language='en'):
         self.from_language = from_language
+        self.to_language = to_language
         self.client = translate.Client(target_language=to_language)
 
     def translate(self, text):
