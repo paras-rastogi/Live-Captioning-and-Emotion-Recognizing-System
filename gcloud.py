@@ -1,4 +1,4 @@
-from google.cloud import speech
+from google.cloud import speech, translate
 from google.cloud.speech import enums, types
 import pyaudio
 
@@ -41,12 +41,16 @@ class S2TConverter:
 
 class Translate:
 
-    def __init__(self, from_language='en-US', to_language='en-US'):
+    def __init__(self, from_language='en', to_language='en'):
         self.from_language = from_language
-        self.to_language = to_language
+        self.client = translate.Client(target_language=to_language)
 
     def translate(self, text):
+        if self.from_language == self.to_language:
+            return text
         return self._call_translate(text)
 
     def _call_translate(self, text):
-        pass
+        resp = self.client.translate(text)
+        if 'translatedText' in resp.keys():
+            return resp['translatedText']
