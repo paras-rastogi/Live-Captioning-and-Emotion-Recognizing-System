@@ -2,11 +2,11 @@ import pyaudio
 from six.moves import queue
 
 
-RATE = 16000
-CHUNK = int(RATE / 10)
+# RATE = 16000
+# CHUNK = int(RATE / 10)
 
 
-class MicrophoneStream(object):
+class AudioStream(object):
     """Opens a recording stream as a generator yielding the audio chunks."""
     def __init__(self, rate, chunk, channel):
         self._channel = channel
