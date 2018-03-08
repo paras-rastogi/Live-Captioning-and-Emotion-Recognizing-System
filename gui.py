@@ -4,6 +4,7 @@ from tkinter import filedialog
 from PIL import ImageTk,Image
 from gcloud import S2TConverter, Translate
 from audioi import AudioStream
+from wcloud import tone_sentiment
 
 
 root=None
@@ -64,8 +65,13 @@ def listen_print_loop(responses):
             num_chars_printed = len(transcript)
 
         else:
-            print(transcript + overwrite_chars)
-
+            message = transcript + overwrite_chars
+            data = tone_sentiment(message)
+            tones = data['document_tone']['tones']
+            if tones:
+                print(f'{message}: {tones[0]["tone_name"]}')
+            else:
+                print(f'{message}: can\'t find tone.')
             # Exit recognition if any of the transcribed phrases could be
             # one of our keywords.
             if re.search(r'\b(exit|quit)\b', transcript, re.I):
@@ -89,10 +95,13 @@ def start():
 
     conv = S2TConverter(RATE, lang)
     streaming_config = conv.get_streaming_config()
-    with AudioStream(RATE, CHUNK, audInpCode) as stream:
-        responses = conv.get_responses(stream)
-        listen_print_loop(responses)
-
+    while True:
+        try:
+            with AudioStream(RATE, CHUNK, audInpCode) as stream:
+                responses = conv.get_responses(stream)
+                listen_print_loop(responses)
+        except:
+            pass
 
 
 
@@ -106,7 +115,7 @@ def addText(quote):
 
 ###################################################### STOP BUTTON ###########################################################
 def stopFn():
-    return
+    exit(0)
 
 ###################################################### SUBMIT BUTTON ###########################################################
 def submitFn():
