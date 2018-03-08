@@ -4,5 +4,4 @@ from gcloud import *
 from audioi import *
 
 
-
-createGUI()
+g=GUI()
