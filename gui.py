@@ -59,12 +59,12 @@ def listen_print_loop(responses):
         overwrite_chars = ' ' * (num_chars_printed - len(transcript))
 
         if not result.is_final:
-            addText(transcript + overwrite_chars + '\r')
-
+            sys.stdout.write(transcript + overwrite_chars + '\r')
+            sys.stdout.flush()
             num_chars_printed = len(transcript)
 
         else:
-            addText(transcript + overwrite_chars + '\n')
+            print(transcript + overwrite_chars)
 
             # Exit recognition if any of the transcribed phrases could be
             # one of our keywords.
@@ -81,7 +81,7 @@ def start():
     aud = selectedAudtype()
     audInpCode = 6
     RATE = 16000
-    CHUNK = (int(RATE)/10)
+    CHUNK = int(RATE/10) # (int(RATE)/10)
     if aud == "Record":
         audInpCode = 6
     elif aud == "System Audio":
@@ -125,9 +125,9 @@ def submitFn():
     textBox.see("end")
 
     # Calling the submit backend
+    start()
 
 
-    
 ###################################################### OPENING AUDIO FILE ###########################################################
 def getFile():
     global openfileName,ipPanel,opPanel,imx,imy,ipimg,opimg
@@ -146,7 +146,7 @@ def visibilityControl(x):
         fileButton.grid_remove()
     return audtype.get()
 
-    
+
 ####################################################### FUNCTION FOR AUDIO TYPE #####################################################
 def selectedAudtype():
     global audtype
@@ -157,7 +157,7 @@ def selectedAudtype():
 def selectedLangtype():
     global langtype
     return langtype.get()
-    
+
 
 ########################################################## CREATE GUI ################################################################
 def createGUI():
@@ -187,5 +187,3 @@ def createGUI():
     stopButton = Button(root, text='Stop', command=stopFn)
     stopButton.grid(row=4, column=1)
     root.mainloop()
-
-
