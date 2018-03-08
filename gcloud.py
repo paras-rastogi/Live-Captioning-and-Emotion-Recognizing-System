@@ -2,6 +2,7 @@ from google.cloud import speech, translate
 from google.cloud.speech import enums, types
 import pyaudio
 
+
 """
 ## This class is for all the API calls to google cloud for speech to text conversion.
 @ param: rate: Sampling rate of the audio in HERTZ

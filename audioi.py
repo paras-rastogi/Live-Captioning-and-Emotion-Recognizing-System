@@ -1,5 +1,3 @@
-from __future__ import division
-
 import pyaudio
 from six.moves import queue
 
@@ -26,7 +24,7 @@ class AudioStream(object):
             format=pyaudio.paInt16,
             # The API currently only supports 1-channel (mono) audio
             # https://goo.gl/z757pE
-            channels=3, rate=self._rate,
+            channels=1, rate=self._rate,
             input_device_index=self._input_device,
             input=True, frames_per_buffer=self._chunk,
             # Run the audio stream asynchronously to fill the buffer object.
