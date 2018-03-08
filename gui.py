@@ -1,9 +1,7 @@
 import os
-import cv2
 from tkinter import *
 from tkinter import filedialog
 from PIL import ImageTk,Image
-import numpy as np
 
 root=None
 openfileName=None
