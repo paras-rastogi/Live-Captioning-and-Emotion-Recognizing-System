@@ -2,14 +2,16 @@ import pyaudio
 from six.moves import queue
 
 
+# 6 for sys default and 12 for pulse
+
 # RATE = 16000
 # CHUNK = int(RATE / 10)
 
 
 class AudioStream(object):
     """Opens a recording stream as a generator yielding the audio chunks."""
-    def __init__(self, rate, chunk, channel):
-        self._channel = channel
+    def __init__(self, rate, chunk, input_device):
+        self._input_device = input_device
         self._rate = rate
         self._chunk = chunk
 
@@ -23,7 +25,8 @@ class AudioStream(object):
             format=pyaudio.paInt16,
             # The API currently only supports 1-channel (mono) audio
             # https://goo.gl/z757pE
-            channels=self._channel, rate=self._rate,
+            channels=1, rate=self._rate,
+            input_device_index=self._input_device,
             input=True, frames_per_buffer=self._chunk,
             # Run the audio stream asynchronously to fill the buffer object.
             # This is necessary so that the input device's buffer doesn't
@@ -70,3 +73,10 @@ class AudioStream(object):
                     break
 
             yield b''.join(data)
+
+# aud = AudioStream(RATE, CHUNK, 12)
+# aud.__enter__()
+# from time import sleep
+# sleep(1)
+# aud.__exit__(None, None, None)
+# print(aud._buff.get())
