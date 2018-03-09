@@ -17,7 +17,98 @@ languages = {"English":'en-US',
             }
 
 
-def listen_print_loop(responses):
+
+
+
+
+
+########################################################## CREATE GUI ################################################################
+class GUI(Thread):
+    def __init__(self):
+        self.root = Tk()
+        self.root.title("CAPTION")
+        #root.state('zoomed')                               #for windows
+        #root.attributes("-zoomed", True)                   #for linux
+        ############################# TOP LABELS ####################################
+        self.lanLabel = Label(self.root, text='Language')
+        self.lanLabel.grid(row=0, column=0, padx=2, pady=2)
+        self.langtype = StringVar(self.root)
+        self.langtype.set(lang_opt[0])                                           # default value
+        self.langSelect = OptionMenu(self.root, self.langtype, *lang_opt)
+        self.langSelect.grid(row=0, column=1, padx=2, pady=2)
+        self.audLabel = Label(self.root, text='Audio Input Type')
+        self.audLabel.grid(row=1, column=0, padx=2, pady=2)
+        self.audtype = StringVar(self.root)
+        self.audtype.set(aud_type_opt[0])                                        # default value
+        self.audSelect = OptionMenu(self.root, self.audtype, *aud_type_opt, command = self.visibilityControl)
+        self.audSelect.grid(row=1, column=1, padx=2, pady=2)
+        self.fileButton = Button(text='Select Audio File', command=self.getFile)
+        self.fileButton.grid(row=3, column=0, padx=2, pady=2)
+        self.fileButton.grid_remove()
+        self.submitButton = Button(self.root, text='Submit', command=self.submitFn)
+        self.submitButton.grid(row=4, column=0)
+        self.stopButton = Button(self.root, text='Stop', command=self.stopFn)
+        self.stopButton.grid(row=4, column=1)
+        self.root.mainloop()
+##        t=Thread(self.root.mainloop())
+##        t.daemon = True # this line tells the thread to quit if the GUI (master thread) quits.
+##        t.start()
+
+        self.textBox = None
+        self.openfileName = None
+
+    def addText(self, quote):
+        self.textBox.insert(END, " "+quote)
+        self.textBox.see("end")
+
+    def stopFn(self):
+        self.root.destroy()
+        exit(0)
+
+
+    def submitFn(self):
+        display = Tk()
+        scroll = Scrollbar(display)
+        scroll.pack(side=RIGHT, fill=Y)
+        self.textBox = Text(display, height=4, width=50, wrap=WORD, yscrollcommand=scroll.set)
+    ##    scroll.pack(side=RIGHT, fill=Y)
+        self.textBox.pack(side=LEFT, fill=Y)
+        self.textBox.tag_configure("center", justify='center')
+    ##    scroll.config(command=textBox.yview)
+    ##    textBox.config(yscrollcommand=scroll.set)
+        quote = "Starting Captioning\n"
+        self.textBox.insert(END, quote)
+        self.textBox.see("end")
+        start(self)
+
+
+
+    def getFile(self):
+        self.openfileName = filedialog.askopenfilename(initialdir = os.getcwd, title = "Select file", filetypes = (("mp3 files","*.mp3"),("wav files","*.wav")))
+        if (not openfileName):
+            return
+        print(openfileName)
+
+
+
+    def visibilityControl(self, x):
+        if x=='Upload':
+            self.fileButton.grid()
+        else:
+            self.fileButton.grid_remove()
+        return self.audtype.get()
+
+
+
+    def selectedAudtype(self):
+        return self.audtype.get()
+
+
+
+    def selectedLangtype(self):
+        return self.langtype.get()
+
+def listen_print_loop(self, responses):
     """Iterates through server responses and prints them.
 
     The responses passed is a generator that will block until a response
@@ -61,12 +152,19 @@ def listen_print_loop(responses):
 
         else:
             message = transcript + overwrite_chars
-            data = tone_sentiment(message)
-            tones = data['document_tone']['tones']
-            if tones:
-                print(f'{message}: {tones[0]["tone_name"]}')
+            lang = self.selectedLangtype()
+            if lang != 'English':
+                obj = Translate(languages[lang])
+                temp = obj.translate(message)
+                data = tone_sentiment(temp)
+                tones = data['document_tone']['tones']
             else:
-                print(f'{message}: can\'t find tone.')
+                data = tone_sentiment(message)
+                tones = data['document_tone']['tones']
+            if tones:
+                print(message,':',tones[0]["tone_name"])
+            else:
+                print(message,': can\'t find tone.')
             # Exit recognition if any of the transcribed phrases could be
             # one of our keywords.
             if re.search(r'\b(exit|quit)\b', transcript, re.I):
@@ -77,9 +175,9 @@ def listen_print_loop(responses):
 
 
 
-def start():
-    lang = languages[selectedLangtype()]
-    aud = selectedAudtype()
+def start(self):
+    lang = languages[self.selectedLangtype()]
+    aud = self.selectedAudtype()
     audInpCode = 6
     RATE = 16000
     CHUNK = int(RATE/10) # (int(RATE)/10)
@@ -94,98 +192,6 @@ def start():
         try:
             with AudioStream(RATE, CHUNK, audInpCode) as stream:
                 responses = conv.get_responses(stream)
-                listen_print_loop(responses)
+                listen_print_loop(self, responses)
         except:
             pass
-
-
-
-
-########################################################## CREATE GUI ################################################################
-class GUI(Thread):
-    def __init__(self):
-        self.root = Tk()
-        self.root.title("CAPTION")
-        #root.state('zoomed')                               #for windows
-        #root.attributes("-zoomed", True)                   #for linux
-        ############################# TOP LABELS ####################################
-        self.lanLabel = Label(self.root, text='Language')
-        self.lanLabel.grid(row=0, column=0, padx=2, pady=2)
-        self.langtype = StringVar(self.root)
-        self.langtype.set(lang_opt[0])                                           # default value
-        self.langSelect = OptionMenu(self.root, self.langtype, *lang_opt)
-        self.langSelect.grid(row=0, column=1, padx=2, pady=2)
-        self.audLabel = Label(self.root, text='Audio Input Type')
-        self.audLabel.grid(row=1, column=0, padx=2, pady=2)
-        self.audtype = StringVar(self.root)
-        self.audtype.set(aud_type_opt[0])                                        # default value
-        self.audSelect = OptionMenu(self.root, self.audtype, *aud_type_opt, command = self.visibilityControl)
-        self.audSelect.grid(row=1, column=1, padx=2, pady=2)
-        self.fileButton = Button(text='Select Audio File', command=self.getFile)
-        self.fileButton.grid(row=3, column=0, padx=2, pady=2)
-        self.fileButton.grid_remove()
-        self.submitButton = Button(self.root, text='Submit', command=self.submitFn)
-        self.submitButton.grid(row=4, column=0)
-        self.stopButton = Button(self.root, text='Stop', command=self.stopFn)
-        self.stopButton.grid(row=4, column=1)
-        self.root.mainloop()
-##        t=Thread(self.root.mainloop())
-##        t.daemon = True # this line tells the thread to quit if the GUI (master thread) quits.
-##        t.start()
-        
-        self.textBox = None
-        self.openfileName = None
-
-    def addText(self, quote):
-        self.textBox.insert(END, " "+quote)
-        self.textBox.see("end")
-
-    def stopFn(self):
-        self.root.destroy()
-        exit(0)
-
-
-    def submitFn(self):
-        display = Tk()
-        scroll = Scrollbar(display)
-        scroll.pack(side=RIGHT, fill=Y)
-        self.textBox = Text(display, height=4, width=50, wrap=WORD, yscrollcommand=scroll.set)
-    ##    scroll.pack(side=RIGHT, fill=Y)
-        self.textBox.pack(side=LEFT, fill=Y)
-        self.textBox.tag_configure("center", justify='center')
-    ##    scroll.config(command=textBox.yview)
-    ##    textBox.config(yscrollcommand=scroll.set)
-        quote = "Starting Captioning\n"
-        self.textBox.insert(END, quote)
-        self.textBox.see("end")
-        start()
-
-
-
-    def getFile(self):
-        self.openfileName = filedialog.askopenfilename(initialdir = os.getcwd, title = "Select file", filetypes = (("mp3 files","*.mp3"),("wav files","*.wav")))
-        if (not openfileName):
-            return
-        print(openfileName)
-
-
-
-    def visibilityControl(self, x):
-        if x=='Upload':
-            self.fileButton.grid()
-        else:
-            self.fileButton.grid_remove()
-        return self.audtype.get()
-
-
-
-    def selectedAudtype(self):
-        return self.audtype.get()
-
-
-
-    def selectedLangtype(self):
-        return self.langtype.get()
-
-
-        
