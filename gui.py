@@ -5,6 +5,7 @@ from PIL import ImageTk,Image
 from gcloud import S2TConverter, Translate
 from audioi import AudioStream
 from wcloud import tone_sentiment
+from threading import Thread
 
 
 aud_type_opt = ["Record", "Upload", "System Audio"]
@@ -101,7 +102,7 @@ def start():
 
 
 ########################################################## CREATE GUI ################################################################
-class GUI:
+class GUI(Thread):
     def __init__(self):
         self.root = Tk()
         self.root.title("CAPTION")
@@ -128,6 +129,10 @@ class GUI:
         self.stopButton = Button(self.root, text='Stop', command=self.stopFn)
         self.stopButton.grid(row=4, column=1)
         self.root.mainloop()
+##        t=Thread(self.root.mainloop())
+##        t.daemon = True # this line tells the thread to quit if the GUI (master thread) quits.
+##        t.start()
+        
         self.textBox = None
         self.openfileName = None
 
@@ -139,7 +144,7 @@ class GUI:
         self.root.destroy()
         exit(0)
 
-    ###################################################### SUBMIT BUTTON ###########################################################
+
     def submitFn(self):
         display = Tk()
         scroll = Scrollbar(display)
@@ -153,12 +158,10 @@ class GUI:
         quote = "Starting Captioning\n"
         self.textBox.insert(END, quote)
         self.textBox.see("end")
-
-        # Calling the submit backend
         start()
 
 
-    ###################################################### OPENING AUDIO FILE ###########################################################
+
     def getFile(self):
         self.openfileName = filedialog.askopenfilename(initialdir = os.getcwd, title = "Select file", filetypes = (("mp3 files","*.mp3"),("wav files","*.wav")))
         if (not openfileName):
@@ -166,7 +169,7 @@ class GUI:
         print(openfileName)
 
 
-    ####################################################### VISIBILITY ##################################################################
+
     def visibilityControl(self, x):
         if x=='Upload':
             self.fileButton.grid()
@@ -175,14 +178,14 @@ class GUI:
         return self.audtype.get()
 
 
-    ####################################################### FUNCTION FOR AUDIO TYPE #####################################################
+
     def selectedAudtype(self):
         return self.audtype.get()
 
 
-    ################################################### FUNCTION FOR LANGUAGE TYPE #####################################################
+
     def selectedLangtype(self):
         return self.langtype.get()
 
-    
+
         
