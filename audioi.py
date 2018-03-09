@@ -68,6 +68,9 @@ class AudioStream(object):
                     if chunk is None:
                         return
                     data.append(chunk)
+
+                except KeyboardInterrupt:
+                    self.__exit__(None, None, None)
                 except queue.Empty:
                     break
 

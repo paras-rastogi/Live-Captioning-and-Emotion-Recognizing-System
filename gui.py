@@ -28,17 +28,7 @@ def color_text(text, color=None):
     return '{0}{1}{2}'.format(BCOLORS[color], text, BCOLORS['ENDC'])
 
 aud_type_opt = ["Record", "Upload", "System Audio"]
-lang_opt = ["English", "Hindi", "Tamil", "Telgu"]
-languages = {"English":'en-US',
-             "Hindi":'hi-IN',
-             "Tamil":'ta-IN',
-             "Telugu":'te-IN',
-            }
-
-
-
-
-
+from languages import languages, lang_opt
 
 
 ########################################################## CREATE GUI ################################################################
@@ -173,18 +163,18 @@ def listen_print_loop(self, responses):
             tones = None
             message = transcript + overwrite_chars
             lang = self.selectedLangtype()
-            if lang != 'English':
-                obj = Translate(languages[lang])
-                temp = obj.translate(message)
-                data = tone_sentiment(temp)
-                tones = data['document_tone']['tones']
-            else:
-                data = tone_sentiment(message)
-                tones = data['document_tone']['tones']
+            # if lang != 'English':
+            obj = Translate(languages[lang])
+            temp = obj.translate(message)
+            data = tone_sentiment(temp)
+            tones = data['document_tone']['tones']
+            # else:
+            #     data = tone_sentiment(message)
+            #     tones = data['document_tone']['tones']
             if tones:
                 print color_text(message,tones[0]["tone_name"])
             else:
-                print message
+                print color_text(message, 'Tentative')
             # Exit recognition if any of the transcribed phrases could be
             # one of our keywords.
             if re.search(r'\b(exit|quit)\b', transcript, re.I):
