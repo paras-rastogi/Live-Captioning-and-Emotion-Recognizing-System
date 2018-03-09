@@ -5,14 +5,25 @@ from audioi import *
 from threading import Thread
 from time import sleep
 import multiprocessing as mp
-
+from gui import color_text, BCOLORS
+BCOLORS = {
+    'Confident': '\033[95m',
+    'Joy': '\033[94m',
+    'Analytical': '\033[92m',
+    'Fear': '\033[93m',
+    'Anger': '\033[91m',
+    'ENDC': '\033[0m',
+    'Sadness': '\033[1m',
+    'UNDERLINE': '\033[4m',
+    'Tentative': '\033[0;36m'
+}
 ##mainbackend_obj=None
 ##def test(gui_obj):
 ##    global mainbackend_obj
 ##    mainbackend_obj.gui_obj=gui_obj
 ##    mainbackend_obj.start()
 class MainGUI(GUI):
-    
+
     def submitFn(self):
         GUI.submitFn(self)
 ##        sleep(1)
@@ -26,7 +37,7 @@ class Mainbackend():
     def __init__(self, gui_obj):
         self.gui_obj=gui_obj
     def run1(self):
-            
+
 ##            a=input("number: ")
 ##            print(a)
         lang = languages[self.gui_obj.selectedLangtype()]
@@ -43,8 +54,6 @@ class Mainbackend():
         streaming_config = conv.get_streaming_config()
         while True:
             try:
-                gui_obj.display.update()
-                gui_obj.root.update()
                 with AudioStream(RATE, CHUNK, audInpCode) as stream:
                     responses = conv.get_responses(stream)
                     listen_print_loop(self, responses)
@@ -104,10 +113,10 @@ class Mainbackend():
                 else:
                     data = tone_sentiment(message)
                     tones = data['document_tone']['tones']
-                if tones:
-                    print(message,':',tones[0]["tone_name"])
-                else:
-                    print(message,': can\'t find tone.')
+                    if tones:
+                        print(message,':',tones[0]["tone_name"])
+                    else:
+                        print(message,': can\'t find tone.')
                 # Exit recognition if any of the transcribed phrases could be
                 # one of our keywords.
                 if re.search(r'\b(exit|quit)\b', transcript, re.I):
@@ -115,19 +124,20 @@ class Mainbackend():
                     break
 
                 num_chars_printed = 0
+def color_text(text, color=None):
+    """
+    :desc: Colors the text
+    """
 
+    if color is None:
+        return text
+
+    return '{0}{1}{2}'.format(BCOLORS[color], text, BCOLORS['ENDC'])
 if __name__=='__main__':
-    LOOP=True
+    print(color_text('Anger','Anger'),color_text('Fear','Fear'),color_text('Joy','Joy'),color_text('Sadness','Sadness'),color_text('Analytical','Analytical'),color_text('Confident','Confident'),color_text('Tentative','Tentative'))
     gui_obj=MainGUI()
     mainbackend_obj=Mainbackend(gui_obj)
-    
-    while LOOP:
-        try:
-            gui_obj.root.update()
-        except:
-            break
+
+
 ##    gui_obj.start()
 ##    mainbackend_obj=Mainbackend(self)
-
-    
-

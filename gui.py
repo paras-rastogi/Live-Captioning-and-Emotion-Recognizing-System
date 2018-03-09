@@ -6,7 +6,26 @@ from gcloud import S2TConverter, Translate
 from audioi import AudioStream
 from wcloud import tone_sentiment
 from threading import Thread
+BCOLORS = {
+    'Confident': '\033[95m',
+    'Joy': '\033[94m',
+    'Analytical': '\033[92m',
+    'Fear': '\033[93m',
+    'Anger': '\033[91m',
+    'ENDC': '\033[0m',
+    'Sadness': '\033[1m',
+    'UNDERLINE': '\033[4m',
+    'Tentative': '\033[0;36m'
+}
+def color_text(text, color=None):
+    """
+    :desc: Colors the text
+    """
 
+    if color is None:
+        return text
+
+    return '{0}{1}{2}'.format(BCOLORS[color], text, BCOLORS['ENDC'])
 
 aud_type_opt = ["Record", "Upload", "System Audio"]
 lang_opt = ["English", "Hindi", "Tamil", "Telgu"]
@@ -23,7 +42,7 @@ languages = {"English":'en-US',
 
 
 ########################################################## CREATE GUI ################################################################
-class GUI(Thread):
+class GUI():
     def __init__(self):
         self.root = Tk()
         self.root.title("CAPTION")
@@ -151,6 +170,7 @@ def listen_print_loop(self, responses):
             num_chars_printed = len(transcript)
 
         else:
+            tones = None
             message = transcript + overwrite_chars
             lang = self.selectedLangtype()
             if lang != 'English':
@@ -162,9 +182,9 @@ def listen_print_loop(self, responses):
                 data = tone_sentiment(message)
                 tones = data['document_tone']['tones']
             if tones:
-                print(message,':',tones[0]["tone_name"])
+                print(color_text(message,tones[0]["tone_name"]))
             else:
-                print(message,': can\'t find tone.')
+                print(message)
             # Exit recognition if any of the transcribed phrases could be
             # one of our keywords.
             if re.search(r'\b(exit|quit)\b', transcript, re.I):
