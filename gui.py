@@ -3,13 +3,13 @@ from tkinter import *
 from tkinter import filedialog
 from PIL import ImageTk,Image
 from gcloud import S2TConverter, Translate
-from audioi import AudioStream
+from audioi import AudioStream,SysAudioStream
 from wcloud import tone_sentiment
 from threading import Thread
 
 
 aud_type_opt = ["Record", "Upload", "System Audio"]
-lang_opt = ["English", "Hindi", "Tamil", "Telgu"]
+lang_opt = ["English", "Hindi", "Tamil", "Telugu"]
 languages = {"English":'en-US',
              "Hindi":'hi-IN',
              "Tamil":'ta-IN',
@@ -123,6 +123,7 @@ def listen_print_loop(self, responses):
     the next result to overwrite it, until the response is a final one. For the
     final one, print a newline to preserve the finalized transcription.
     """
+    print("ASDas")
     num_chars_printed = 0
     for response in responses:
         if not response.results:
@@ -156,6 +157,7 @@ def listen_print_loop(self, responses):
             if lang != 'English':
                 obj = Translate(languages[lang])
                 temp = obj.translate(message)
+                print(temp)
                 data = tone_sentiment(temp)
                 tones = data['document_tone']['tones']
             else:
@@ -180,18 +182,18 @@ def start(self):
     aud = self.selectedAudtype()
     audInpCode = 6
     RATE = 16000
+    conv = S2TConverter(RATE, lang)
+    streaming_config = conv.get_streaming_config()
     CHUNK = int(RATE/10) # (int(RATE)/10)
     if aud == "Record":
         audInpCode = 6
+        while True:
+            try:
+                with AudioStream(RATE, CHUNK, audInpCode) as stream:
+                    responses = conv.get_responses(stream)
+                    listen_print_loop(self, responses)
+            except:
+                pass
     elif aud == "System Audio":
-        audInpCode = 12
-
-    conv = S2TConverter(RATE, lang)
-    streaming_config = conv.get_streaming_config()
-    while True:
-        try:
-            with AudioStream(RATE, CHUNK, audInpCode) as stream:
-                responses = conv.get_responses(stream)
-                listen_print_loop(self, responses)
-        except:
-            pass
+        responses = conv.get_responses(SysAudioStream(44100, 16))
+        listen_print_loop(self, responses)

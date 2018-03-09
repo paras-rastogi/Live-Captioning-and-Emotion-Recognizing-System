@@ -1,10 +1,64 @@
 import pyaudio
 from six.moves import queue
+from pysoundcard import Stream, continue_flag
 
 # 6 for sys default and 12 for pulse
 
 # RATE = 16000
 # CHUNK = int(RATE / 10)
+
+
+
+
+
+# fs = 44100
+# blocksize = 16
+
+
+class SysAudioStream(object):
+    """Loop back system audio."""
+    def __init__(self, rate, blocksize):
+        self._rate = rate
+        self._blocksize = blocksize
+        self._buff = queue.Queue()
+        self.closed = True
+
+    def __enter__(self):
+        self._audio_stream = Stream(samplerate=self._rate, blocksize=self._blocksize)
+        self._audio_stream.start()
+        self.closed = False
+
+
+
+    def __exit__(self, type, value, traceback):
+        self._audio_stream.stop()
+        self.closed = True
+        # Signal the generator to terminate so that the client's
+        # streaming_recognize method will not block the process termination.
+        self._buff.put(None)
+
+    def generator(self):
+        while not self.closed:
+            # Use a blocking get() to ensure there's at least one chunk of
+            # data, and stop iteration if the chunk is None, indicating the
+            # end of the audio stream.
+            chunk = self._audio_stream.read(16)
+            if chunk is None:
+                return
+            data = [chunk]
+
+            # Now consume whatever other data's still buffered.
+            # while True:
+            #     try:
+            #         chunk = self._buff.get(block=False)
+            #         if chunk is None:
+            #             return
+            #         data.append(chunk)
+            #     except queue.Empty:
+            #         break
+
+            yield b''.join(data)
+
 
 
 class AudioStream(object):
@@ -25,7 +79,7 @@ class AudioStream(object):
             # The API currently only supports 1-channel (mono) audio
             # https://goo.gl/z757pE
             channels=1, rate=self._rate,
-            input_device_index=self._input_device,
+            input_device_index=int(self._input_device),
             input=True, frames_per_buffer=self._chunk,
             # Run the audio stream asynchronously to fill the buffer object.
             # This is necessary so that the input device's buffer doesn't
@@ -49,6 +103,7 @@ class AudioStream(object):
     def _fill_buffer(self, in_data, frame_count, time_info, status_flags):
         """Continuously collect data from the audio stream, into the buffer."""
         self._buff.put(in_data)
+
         return None, pyaudio.paContinue
 
     def generator(self):
