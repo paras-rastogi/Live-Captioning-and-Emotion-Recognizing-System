@@ -159,7 +159,7 @@ class GUI:
 
 
     ###################################################### OPENING AUDIO FILE ###########################################################
-    def getFile():
+    def getFile(self):
         self.openfileName = filedialog.askopenfilename(initialdir = os.getcwd, title = "Select file", filetypes = (("mp3 files","*.mp3"),("wav files","*.wav")))
         if (not openfileName):
             return
@@ -167,7 +167,7 @@ class GUI:
 
 
     ####################################################### VISIBILITY ##################################################################
-    def visibilityControl(x):
+    def visibilityControl(self, x):
         if x=='Upload':
             self.fileButton.grid()
         else:
@@ -176,12 +176,12 @@ class GUI:
 
 
     ####################################################### FUNCTION FOR AUDIO TYPE #####################################################
-    def selectedAudtype():
+    def selectedAudtype(self):
         return self.audtype.get()
 
 
     ################################################### FUNCTION FOR LANGUAGE TYPE #####################################################
-    def selectedLangtype():
+    def selectedLangtype(self):
         return self.langtype.get()
 
     
