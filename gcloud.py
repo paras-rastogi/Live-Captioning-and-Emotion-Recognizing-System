@@ -15,6 +15,9 @@ class S2TConverter:
         self.language = language
         self.streaming_config = self.get_streaming_config()
 
+    """
+    ## This method creates configuration for streeming
+    """
     def get_streaming_config(self):
         config = types.RecognitionConfig(
                      encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
