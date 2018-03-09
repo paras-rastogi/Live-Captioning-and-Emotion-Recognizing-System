@@ -1,6 +1,6 @@
 import os
-from tkinter import *
-from tkinter import filedialog
+from Tkinter import *
+import tkFileDialog
 from PIL import ImageTk,Image
 from gcloud import S2TConverter, Translate
 from audioi import AudioStream
@@ -103,10 +103,10 @@ class GUI():
 
 
     def getFile(self):
-        self.openfileName = filedialog.askopenfilename(initialdir = os.getcwd, title = "Select file", filetypes = (("mp3 files","*.mp3"),("wav files","*.wav")))
+        self.openfileName = tkFileDialog.askopenfilename(initialdir = os.getcwd, title = "Select file", filetypes = (("mp3 files","*.mp3"),("wav files","*.wav")))
         if (not openfileName):
             return
-        print(openfileName)
+        print openfileName
 
 
 
@@ -182,13 +182,13 @@ def listen_print_loop(self, responses):
                 data = tone_sentiment(message)
                 tones = data['document_tone']['tones']
             if tones:
-                print(color_text(message,tones[0]["tone_name"]))
+                print color_text(message,tones[0]["tone_name"])
             else:
-                print(message)
+                print message
             # Exit recognition if any of the transcribed phrases could be
             # one of our keywords.
             if re.search(r'\b(exit|quit)\b', transcript, re.I):
-                print('Exiting..')
+                print 'Exiting..'
                 break
 
             num_chars_printed = 0

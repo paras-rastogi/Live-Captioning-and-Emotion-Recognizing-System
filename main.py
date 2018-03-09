@@ -114,13 +114,13 @@ class Mainbackend():
                     data = tone_sentiment(message)
                     tones = data['document_tone']['tones']
                     if tones:
-                        print(message,':',tones[0]["tone_name"])
+                        print message,':',tones[0]["tone_name"]
                     else:
-                        print(message,': can\'t find tone.')
+                        print message,': can\'t find tone.'
                 # Exit recognition if any of the transcribed phrases could be
                 # one of our keywords.
                 if re.search(r'\b(exit|quit)\b', transcript, re.I):
-                    print('Exiting..')
+                    print 'Exiting..'
                     break
 
                 num_chars_printed = 0
@@ -134,7 +134,7 @@ def color_text(text, color=None):
 
     return '{0}{1}{2}'.format(BCOLORS[color], text, BCOLORS['ENDC'])
 if __name__=='__main__':
-    print(color_text('Anger','Anger'),color_text('Fear','Fear'),color_text('Joy','Joy'),color_text('Sadness','Sadness'),color_text('Analytical','Analytical'),color_text('Confident','Confident'),color_text('Tentative','Tentative'))
+    print color_text('Anger','Anger'),color_text('Fear','Fear'),color_text('Joy','Joy'),color_text('Sadness','Sadness'),color_text('Analytical','Analytical'),color_text('Confident','Confident'),color_text('Tentative','Tentative')
     gui_obj=MainGUI()
     mainbackend_obj=Mainbackend(gui_obj)
 
