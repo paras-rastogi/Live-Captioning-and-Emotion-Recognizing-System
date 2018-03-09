@@ -1,11 +1,6 @@
 import pyaudio
 from six.moves import queue
 
-# 6 for sys default and 12 for pulse
-
-# RATE = 16000
-# CHUNK = int(RATE / 10)
-
 
 class AudioStream(object):
     """Opens a recording stream as a generator yielding the audio chunks."""
